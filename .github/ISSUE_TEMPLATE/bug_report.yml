@@ -1,0 +1,68 @@
+name: 🐞 Bug Report
+description: File a bug report to help us improve the WhatsApp Clone
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees:
+  - mo-adel-tronic
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 
+        Please ensure you have searched existing issues before creating a new one.
+
+  - type: dropdown
+    id: feature_area
+    attributes:
+      label: Which Feature is broken?
+      description: Select the module where the bug occurs.
+      options:
+        - "🔐 Auth (Login/OTP)"
+        - "👤 Profile (User Info)"
+        - "Home Screen"
+        - "Welcome Screen"
+        - "💬 Chat (Messaging/Sockets)"
+        - "📞 Calls (Voice/Video)"
+        - "🍩 Status (Stories)"
+        - "⚙️ Settings/Profile"
+        - "🏗️ Core/Shared"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly.
+      placeholder: "When I clicked the send button, the app crashed..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: How can we make it crash again?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: input
+    id: device_info
+    attributes:
+      label: Device & OS
+      description: e.g. Samsung S21 (Android 12) or iPhone 13 (iOS 15)
+      placeholder: Emulator / Physical Device Model
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs / StackTrace
+      description: Please paste the full error log here inside code blocks.
+      render: dart

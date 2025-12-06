@@ -1,0 +1,57 @@
+name: 🛠️ Engineering Task
+description: Maintenance, refactoring, testing, or technical chores
+title: "[Task]: "
+labels: ["task", "maintenance"]
+assignees:
+  - mo-adel-tronic
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for technical tasks that don't directly add new features for the user (e.g. Refactoring, Unit Tests, CI/CD setup).
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Category
+      options:
+        - "♻️ Refactoring (Code Cleanup)"
+        - "🧪 Testing (Unit/Widget Tests)"
+        - "📚 Documentation"
+        - "📦 Dependencies / Packages"
+        - "👷 CI/CD & DevOps"
+        - "🚀 Performance Optimization"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What exactly needs to be done?
+      placeholder: "We need to extract the UserCard widget to a separate file to reuse it..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / Motivation
+      description: Why is this task necessary?
+      placeholder: "The current build method is too long (200+ lines) and hard to read."
+
+  - type: textarea
+    id: technical_plan
+    attributes:
+      label: Technical Plan (Optional)
+      description: Any specific files or classes to touch?
+      placeholder: "Modify `lib/features/auth/presentation/widgets/auth_form.dart`..."
+
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done
+      options:
+        - label: "Code compiles without errors"
+        - label: "Linter checks passed (`flutter analyze`)"
+        - label: "No regression issues found"
