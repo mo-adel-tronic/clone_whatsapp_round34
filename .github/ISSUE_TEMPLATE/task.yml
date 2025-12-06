@@ -21,6 +21,8 @@ body:
         - "📦 Dependencies / Packages"
         - "👷 CI/CD & DevOps"
         - "🚀 Performance Optimization"
+        - "UI /UX Improvements"
+        - "⚙️ Other Technical Tasks"
     validations:
       required: true
 
