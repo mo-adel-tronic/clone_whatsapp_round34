@@ -1,0 +1,75 @@
+name: Project Automation Master 🤖
+
+on:
+  issues:
+    types: [opened, closed]
+  pull_request_target:
+    types: [opened, review_requested, closed]
+
+jobs:
+  # ---------------------------------------------------
+  # 1. New Issue -> Todo
+  # ---------------------------------------------------
+  issue_to_todo:
+    name: New Issue -> Todo
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move Issue to Todo
+        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
+        with:
+          gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
+          user: mo-adel-tronic   
+          project_id: 5      
+          resource_node_id: ${{ github.event.issue.node_id }}
+          status_value: "Todo"                 
+
+  # ---------------------------------------------------
+  # 2. PR -> In-Review
+  # ---------------------------------------------------
+  pr_to_review:
+    name: PR -> In-Review
+    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && (github.event.action == 'opened' || github.event.action == 'review_requested')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move PR to In-Review
+        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
+        with:
+          gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
+          user: mo-adel-tronic   
+          project_id: 5      
+          resource_node_id: ${{ github.event.pull_request.node_id }}
+          status_value: "In-Review"            
+
+  # ---------------------------------------------------
+  # 3. Merged PR -> Done
+  # ---------------------------------------------------
+  pr_to_done:
+    name: Merged PR -> Done
+    if: (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move PR to Done
+        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
+        with:
+          gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
+          user: mo-adel-tronic   
+          project_id: 5      
+          resource_node_id: ${{ github.event.pull_request.node_id }}
+          status_value: "Done"                 
+  # ---------------------------------------------------
+  # 4. Closed Issue -> Done (الجديدة) ✅
+  # ---------------------------------------------------
+  issue_closed_to_done:
+    name: Closed Issue -> Done
+    if: github.event_name == 'issues' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move Issue to Done
+        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
+        with:
+          gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
+          user: mo-adel-tronic   
+          project_id: 5      
+          resource_node_id: ${{ github.event.issue.node_id }}
+          status_value: "Done"
