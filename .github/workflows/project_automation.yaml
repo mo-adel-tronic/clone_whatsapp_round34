@@ -20,7 +20,7 @@ jobs:
         with:
           gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
           user: mo-adel-tronic   
-          project_id: 5      
+          project_id: 6      
           resource_node_id: ${{ github.event.issue.node_id }}
           status_value: "Todo"                 
 
@@ -37,7 +37,7 @@ jobs:
         with:
           gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
           user: mo-adel-tronic   
-          project_id: 5      
+          project_id: 6      
           resource_node_id: ${{ github.event.pull_request.node_id }}
           status_value: "In-Review"            
 
@@ -54,7 +54,7 @@ jobs:
         with:
           gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
           user: mo-adel-tronic   
-          project_id: 5      
+          project_id: 6      
           resource_node_id: ${{ github.event.pull_request.node_id }}
           status_value: "Done"                 
   # ---------------------------------------------------
@@ -70,6 +70,6 @@ jobs:
         with:
           gh_token: ${{ secrets.MY_PROJECT_TOKEN }}
           user: mo-adel-tronic   
-          project_id: 5      
+          project_id: 6      
           resource_node_id: ${{ github.event.issue.node_id }}
           status_value: "Done"
