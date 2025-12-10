@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
               supportedLocales: S.delegate.supportedLocales,
               locale: locale,
               debugShowCheckedModeBanner: false,
-              initialRoute: RoutesName.initial,
+              initialRoute: RoutesName.home,
               onGenerateRoute: AppRoute.generate,
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,

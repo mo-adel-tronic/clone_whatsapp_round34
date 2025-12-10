@@ -33,6 +33,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/splash/
+    - assets/images/profile_image_home/
   fonts:
     - family: Roboto
       fonts:
