@@ -6,6 +6,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //  Here we are calling the Dependency Injection
   await DependencyInjection.init();
+    await GetItInit.setup();
   //  This is the main app
   runApp(const MyApp());
 }
