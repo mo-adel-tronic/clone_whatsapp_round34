@@ -124,6 +124,111 @@ class S {
     );
   }
 
+  /// `Linked page`
+  String get linked_title {
+    return Intl.message(
+      'Linked page',
+      name: 'linked_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can link other devices to this account.`
+  String get linked_desc1 {
+    return Intl.message(
+      'You can link other devices to this account.',
+      name: 'linked_desc1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Learn more`
+  String get linked_desc2 {
+    return Intl.message('Learn more', name: 'linked_desc2', desc: '', args: []);
+  }
+
+  /// `Link a device`
+  String get linked_btn {
+    return Intl.message(
+      'Link a device',
+      name: 'linked_btn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DEVICE STATUS`
+  String get linked_status {
+    return Intl.message(
+      'DEVICE STATUS',
+      name: 'linked_status',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap a device to log out.`
+  String get linked_status_text {
+    return Intl.message(
+      'Tap a device to log out.',
+      name: 'linked_status_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Windows`
+  String get linked_device_name {
+    return Intl.message(
+      'Windows',
+      name: 'linked_device_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last active today at 2:28 pm`
+  String get linked_device_active {
+    return Intl.message(
+      'Last active today at 2:28 pm',
+      name: 'linked_device_active',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your personal messages are `
+  String get linked_encryption1 {
+    return Intl.message(
+      'Your personal messages are ',
+      name: 'linked_encryption1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `end-to-end encrypted`
+  String get linked_encryption2 {
+    return Intl.message(
+      'end-to-end encrypted',
+      name: 'linked_encryption2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `\n on all your devices.`
+  String get linked_encryption3 {
+    return Intl.message(
+      '\n on all your devices.',
+      name: 'linked_encryption3',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Next`
   String get btn_next {
     return Intl.message('Next', name: 'btn_next', desc: '', args: []);

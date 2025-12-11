@@ -8,6 +8,18 @@
     "login_field_hint": "Phone number",
     "login_charges_info": "Carrier charges may apply",
 
+    "linked_title":"Linked page",
+    "linked_desc1":"You can link other devices to this account.",
+    "linked_desc2":"Learn more",
+    "linked_btn":"Link a device",
+    "linked_status":"DEVICE STATUS",
+    "linked_status_text":"Tap a device to log out.",
+    "linked_device_name":"Windows",
+    "linked_device_active":"Last active today at 2:28 pm",
+    "linked_encryption1":"Your personal messages are ",
+    "linked_encryption2":"end-to-end encrypted",
+    "linked_encryption3":"\n on all your devices.",
+
     "btn_next": "Next",
     "btn_loading": "Processing...",
     "search_label": "Search",
