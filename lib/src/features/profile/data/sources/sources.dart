@@ -1,5 +1,6 @@
  
-    class  ProfileRemoteDataSource {
-        // Make API call to fetch data and return object.
-        // ...
-    }
+import '../../domain/entities/entities.dart';
+
+abstract class ProfileRemoteDataSource {
+  Future<ProfileEntity> getProfile(String userId);
+}
