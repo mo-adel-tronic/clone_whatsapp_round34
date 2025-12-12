@@ -40,7 +40,7 @@ class AppRoute {
       case RoutesName.camera:
         return CustomPageRoute(page: const CameraPage());
       case RoutesName.settings:
-        return CustomPageRoute(page: const SettingPage());
+        return CustomPageRoute(page: const SettingsPage());
       case RoutesName.linkedDevices:
         return CustomPageRoute(page: const LinkedDevicesPage());
       case RoutesName.profile:
