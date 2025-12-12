@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         child: BlocProvider(
           create: (context) => getIt<LanguageCubit>(),
           child: BlocBuilder<LanguageCubit, Locale>(
+            
             builder: (context, locale) => MaterialApp(
               title: 'WhatsApp Clone',
               localizationsDelegates: [
