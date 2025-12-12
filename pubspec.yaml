@@ -5,6 +5,8 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
+  # تم إضافة باقة Emoji Picker for Flutter لدعم اختيار الإيموجي
+  emoji_picker_flutter: ^1.1.6
   country_picker: ^2.0.27
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1

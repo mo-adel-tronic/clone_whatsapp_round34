@@ -36,7 +36,7 @@ class AppRoute {
       case RoutesName.starredMessages:
         return CustomPageRoute(page: const StarredMessagesPage());
       case RoutesName.chat:
-        return CustomPageRoute(page: const ChatPage());
+        return CustomPageRoute(page:  ChatPage());
       case RoutesName.camera:
         return CustomPageRoute(page: const CameraPage());
       case RoutesName.settings:
