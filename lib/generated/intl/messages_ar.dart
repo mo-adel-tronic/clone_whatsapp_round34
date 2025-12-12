@@ -33,6 +33,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "error_verify_failed": MessageLookupByLibrary.simpleMessage(
       "فشل التحقق. يرجى المحاولة مرة أخرى.",
     ),
+    "linked_btn": MessageLookupByLibrary.simpleMessage("ربط جهاز"),
+    "linked_desc1": MessageLookupByLibrary.simpleMessage(
+      "يمكنك ربط الاجهزه الاخري بهذا الحساب.",
+    ),
+    "linked_desc2": MessageLookupByLibrary.simpleMessage("معرفه المزيد"),
+    "linked_device_active": MessageLookupByLibrary.simpleMessage(
+      "Last active today at 2:28 pm",
+    ),
+    "linked_device_name": MessageLookupByLibrary.simpleMessage("Windows"),
+    "linked_encryption1": MessageLookupByLibrary.simpleMessage(
+      "رسائلك الشخصيه ",
+    ),
+    "linked_encryption2": MessageLookupByLibrary.simpleMessage(
+      "مشفره تماما بين الطرفين",
+    ),
+    "linked_encryption3": MessageLookupByLibrary.simpleMessage(
+      "\n علي جميع الاجهزه",
+    ),
+    "linked_status": MessageLookupByLibrary.simpleMessage("حاله الجهاز"),
+    "linked_status_text": MessageLookupByLibrary.simpleMessage(
+      "اضغط علي احد الاجهزه لتسجيل الخروج من ذلك الجهاز",
+    ),
+    "linked_title": MessageLookupByLibrary.simpleMessage("الاجهزه المرتبطه"),
     "login_charges_info": MessageLookupByLibrary.simpleMessage(
       "قد يتم تطبيق رسوم من قبل شركة الاتصالات",
     ),

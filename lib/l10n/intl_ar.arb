@@ -8,6 +8,18 @@
     "login_field_hint": "رقم الهاتف",
     "login_charges_info": "قد يتم تطبيق رسوم من قبل شركة الاتصالات",
 
+    "linked_title":"الاجهزه المرتبطه",
+    "linked_desc1":"يمكنك ربط الاجهزه الاخري بهذا الحساب.",
+    "linked_desc2":"معرفه المزيد",
+    "linked_btn":"ربط جهاز",
+    "linked_status":"حاله الجهاز",
+    "linked_status_text":"اضغط علي احد الاجهزه لتسجيل الخروج من ذلك الجهاز",
+    "linked_device_name":"Windows",
+    "linked_device_active":"Last active today at 2:28 pm",
+    "linked_encryption1":"رسائلك الشخصيه ",
+    "linked_encryption2":"مشفره تماما بين الطرفين",
+    "linked_encryption3":"\n علي جميع الاجهزه",
+
     "btn_next": "التالي",
     "btn_loading": "جارٍ المعالجة...",
     "search_label": "بحث",

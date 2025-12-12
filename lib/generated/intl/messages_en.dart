@@ -33,6 +33,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "error_verify_failed": MessageLookupByLibrary.simpleMessage(
       "Verification failed. Please try again.",
     ),
+    "linked_btn": MessageLookupByLibrary.simpleMessage("Link a device"),
+    "linked_desc1": MessageLookupByLibrary.simpleMessage(
+      "You can link other devices to this account.",
+    ),
+    "linked_desc2": MessageLookupByLibrary.simpleMessage("Learn more"),
+    "linked_device_active": MessageLookupByLibrary.simpleMessage(
+      "Last active today at 2:28 pm",
+    ),
+    "linked_device_name": MessageLookupByLibrary.simpleMessage("Windows"),
+    "linked_encryption1": MessageLookupByLibrary.simpleMessage(
+      "Your personal messages are ",
+    ),
+    "linked_encryption2": MessageLookupByLibrary.simpleMessage(
+      "end-to-end encrypted",
+    ),
+    "linked_encryption3": MessageLookupByLibrary.simpleMessage(
+      "\n on all your devices.",
+    ),
+    "linked_status": MessageLookupByLibrary.simpleMessage("DEVICE STATUS"),
+    "linked_status_text": MessageLookupByLibrary.simpleMessage(
+      "Tap a device to log out.",
+    ),
+    "linked_title": MessageLookupByLibrary.simpleMessage("Linked page"),
     "login_charges_info": MessageLookupByLibrary.simpleMessage(
       "Carrier charges may apply",
     ),
