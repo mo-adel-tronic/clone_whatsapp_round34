@@ -7,12 +7,12 @@ import 'package:clone_whatsapp_round34/src/features/settings/presentation/pages/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // تهيئة SharedPreferences
+// Initialize SharedPreferences and LanguageDataSource
+// before running the app
+//to check languge before app starts
   final prefs = await SharedPreferences.getInstance();
   final languageDataSource = LanguageDataSource(prefs);
 
-  // الحصول على اللغة المخزنة أو استخدام 'en' بشكل افتراضي
   final initialLang = languageDataSource.getLanguage();
 
   runApp(MyApp(
