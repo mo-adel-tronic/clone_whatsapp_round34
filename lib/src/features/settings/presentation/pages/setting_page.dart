@@ -39,7 +39,7 @@ class SettingsPage extends StatelessWidget {
               const CircleAvatar(
                 radius: 30,
                 backgroundImage: NetworkImage(
-                    "https://i.pravatar.cc/300?img=3"), // صورة شبه اللي في المثال
+                    "https://i.pravatar.cc/300?img=3"),
               ),
               const SizedBox(width: 15),
               Expanded(
@@ -49,7 +49,7 @@ class SettingsPage extends StatelessWidget {
                     Text("Leo Das",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text("POC 🖤👑",
+                    Text("POC ",
                         style: TextStyle(color: Colors.grey, fontSize: 14)),
                   ],
                 ),
@@ -59,7 +59,6 @@ class SettingsPage extends StatelessWidget {
               const Icon(Icons.keyboard_arrow_down, size: 30)
             ],
           ),
-
           const SizedBox(height: 20),
 
           //---------------- SETTINGS ITEMS ------------------
@@ -70,7 +69,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Security notifications, change number",
             page: const AccountPage(),
           ),
-
           buildItem(
             context,
             icon: Icons.lock,
@@ -78,7 +76,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Block contacts, disappearing messages",
             page: const PrivacyPage(),
           ),
-
           buildItem(
             context,
             icon: Icons.person,
@@ -86,7 +83,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Create, edit, profile photo",
             page: const AvatarPage(),
           ),
-
           buildItem(
             context,
             icon: Icons.notifications,
@@ -94,7 +90,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Message, group & call tones",
             page: const NotificationsPage(),
           ),
-
           buildItem(
             context,
             icon: Icons.storage,
@@ -102,7 +97,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Network usage, auto-download",
             page: const StoragePage(),
           ),
-
           buildItem(
             context,
             icon: Icons.language,
@@ -110,7 +104,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "English (device's language)",
             page: const LanguagePage(),
           ),
-
           buildItem(
             context,
             icon: Icons.help,
@@ -118,7 +111,6 @@ class SettingsPage extends StatelessWidget {
             subtitle: "Help centre, contact us, privacy policy",
             page: const HelpPage(),
           ),
-
           const SizedBox(height: 15),
 
           Row(

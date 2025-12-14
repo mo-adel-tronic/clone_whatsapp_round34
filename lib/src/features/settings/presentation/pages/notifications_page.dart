@@ -23,10 +23,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       body: ListView(
         children: [
-
-          /// -------- GENERAL --------
           _sectionTitle("General"),
-
           SettingsSwitchTile(
             title: "Enable Notifications",
             subtitle: "Turn all notifications on or off",
@@ -39,9 +36,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             },
           ),
 
-          /// -------- MESSAGES --------
           _sectionTitle("Messages"),
-
           SettingsSwitchTile(
             title: "Message tones",
             subtitle: "Play sound for messages",
@@ -54,7 +49,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
               });
             },
           ),
-
           SettingsSwitchTile(
             title: "Preview message",
             subtitle: "Show message content in notification",
@@ -68,9 +62,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             },
           ),
 
-          /// -------- GROUPS --------
           _sectionTitle("Groups"),
-
           SettingsSwitchTile(
             title: "Group notifications",
             subtitle: "Notify for group messages",
@@ -84,9 +76,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             },
           ),
 
-          /// -------- CALLS --------
           _sectionTitle("Calls"),
-
           SettingsSwitchTile(
             title: "Call tones",
             subtitle: "Play sound for calls",
@@ -99,7 +89,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
               });
             },
           ),
-
           SettingsSwitchTile(
             title: "Vibration",
             subtitle: "Vibrate for incoming calls",
