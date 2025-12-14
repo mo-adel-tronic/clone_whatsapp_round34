@@ -49,7 +49,7 @@ class SettingsPage extends StatelessWidget {
                     Text("Leo Das",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text("POC ",
+                    Text("POC 🖤👑",
                         style: TextStyle(color: Colors.grey, fontSize: 14)),
                   ],
                 ),
