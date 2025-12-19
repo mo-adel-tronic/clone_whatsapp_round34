@@ -32,6 +32,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is CallModel) {
       _call = args;
@@ -43,22 +44,26 @@ class _VideoCallPageState extends State<VideoCallPage> {
         isVerified: false,
         lastCallTime: 'Now',
         bgImgUrl: '',
-        isVideoCall: false,
+        isVideoCall: true,
         isIncoming: false,
         isMissed: false,
         timeLabel: '',
       );
     }
+
     _displayName = _call.name ?? 'Unknown contact';
     _avatarUrl = _call.avatarUrl;
+
     _channelId = AgoraConfig.buildChannelId(
-        _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}');
+      _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+    );
 
     _initAgora();
   }
 
   Future<void> _initAgora() async {
-    if (kIsWeb) return; // UI only on web
+    // Web: UI only
+    if (kIsWeb) return;
 
     await [
       Permission.microphone,
@@ -112,6 +117,13 @@ class _VideoCallPageState extends State<VideoCallPage> {
     super.dispose();
   }
 
+  Future<void> _endCall() async {
+    if (!kIsWeb && _engine != null) {
+      await _engine!.leaveChannel();
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final avatarUrl = _avatarUrl;
@@ -121,7 +133,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Remote video or background
+          // Remote video or background image
           Positioned.fill(
             child: (!kIsWeb && _engine != null && _remoteUid != null)
                 ? AgoraVideoView(
@@ -226,12 +238,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
                         icon: Icons.call_end_rounded,
                         label: 'End',
                         destructive: true,
-                        onTap: () async {
-                          if (!kIsWeb && _engine != null) {
-                            await _engine!.leaveChannel();
-                          }
-                          if (mounted) Navigator.of(context).pop();
-                        },
+                        onTap: _endCall,
                       ),
                     ],
                   ),

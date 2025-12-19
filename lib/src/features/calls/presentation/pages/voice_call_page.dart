@@ -30,6 +30,7 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is CallModel) {
       _call = args;
@@ -47,16 +48,19 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
         timeLabel: '',
       );
     }
+
     _displayName = _call.name ?? 'Unknown contact';
     _avatarUrl = _call.avatarUrl;
+
     _channelId = AgoraConfig.buildChannelId(
-        _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}');
+      _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+    );
 
     _initAgora();
   }
 
   Future<void> _initAgora() async {
-    // Web: UI only – just start the timer and return
+    // Web: just run the timer and show UI
     if (kIsWeb) {
       _ticker = _Ticker((elapsed) {
         if (!mounted) return;
@@ -66,10 +70,8 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
       return;
     }
 
-    // Request permissions (Android/iOS)
-    await [
-      Permission.microphone,
-    ].request();
+    // Ask for microphone permission
+    await [Permission.microphone].request();
 
     final engine = createAgoraRtcEngine();
     _engine = engine;
@@ -95,11 +97,10 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
     await engine.joinChannel(
       token: AgoraConfig.devToken,
       channelId: _channelId,
-      uid: 0, // 0 means "let Agora assign a UID"
+      uid: 0,
       options: const ChannelMediaOptions(),
     );
 
-    // Start timer
     _ticker = _Ticker((elapsed) {
       if (!mounted) return;
       setState(() => _elapsed = elapsed);
@@ -110,11 +111,19 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
   @override
   void dispose() {
     _ticker?.dispose();
+
     if (!kIsWeb && _engine != null) {
       _engine!.leaveChannel();
       _engine!.release();
     }
     super.dispose();
+  }
+
+  Future<void> _endCall() async {
+    if (!kIsWeb && _engine != null) {
+      await _engine!.leaveChannel();
+    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   String get _elapsedText {
@@ -138,7 +147,7 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
           SafeArea(
             child: Column(
               children: [
-                // Top bar
+                // Top bar (back + lock + add person)
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -185,6 +194,7 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
                 ),
                 const SizedBox(height: 6),
 
+                // Call status / duration
                 Text(
                   _joined ? _elapsedText : 'Calling…',
                   style: const TextStyle(
@@ -195,14 +205,7 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
 
                 const Spacer(),
 
-                _VoiceBottomPanel(
-                  onEnd: () async {
-                    if (!kIsWeb && _engine != null) {
-                      await _engine!.leaveChannel();
-                    }
-                    if (mounted) Navigator.of(context).pop();
-                  },
-                ),
+                _VoiceBottomPanel(onEnd: _endCall),
               ],
             ),
           ),

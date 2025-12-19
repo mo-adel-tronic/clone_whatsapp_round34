@@ -24,7 +24,7 @@ class AppRoute {
   static Route<dynamic> generate(RouteSettings? settings) {
     switch (settings?.name) {
       case RoutesName.initial:
-        return CustomPageRoute(page: const WelcomePage());
+        return CustomPageRoute(page: const CallsPage());
       case RoutesName.login:
         return CustomPageRoute(page: const LoginPage());
       case RoutesName.otp:
