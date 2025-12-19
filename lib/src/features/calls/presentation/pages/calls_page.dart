@@ -1,6 +1,7 @@
 // lib/src/features/calls/presentation/pages/calls_page.dart
 
 import 'package:clone_whatsapp_round34/src/core/routes/names.dart';
+import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_screen_args.dart';
 import 'package:flutter/material.dart';
 import 'package:clone_whatsapp_round34/src/core/theme/app_color.dart';
 import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_model.dart';
@@ -30,7 +31,7 @@ class CallsPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: () {
-          Navigator.pushNamed(context, RoutesName.voiceCalls);
+          //Navigator.pushNamed(context, RoutesName.voiceCalls);
         },
         child: const Icon(Icons.add_call),
       ),
@@ -105,13 +106,30 @@ class CallsPage extends StatelessWidget {
                 call: call,
                 onTap: () {
                   if (call.isVideoCall) {
-                    Navigator.of(context)
-                        .pushNamed(RoutesName.videoCalls, arguments: call);
+                    Navigator.of(context).pushNamed(
+                      RoutesName.videoCalls,
+                      arguments: CallScreenArgs(
+                        callId: call.id ?? "",
+                        isVideo: true,
+                        isCaller: true,
+                        call: call,
+                      ),
+                    );
                   } else {
                     Navigator.of(context).pushNamed(
                       RoutesName.voiceCalls,
-                      arguments: call,
+                      arguments: CallScreenArgs(
+                        callId: call.id ?? "", // or any string
+                        isVideo: false,
+                        isCaller: true,
+                        call: call,
+                      ),
                     );
+
+                    // Navigator.of(context).pushNamed(
+                    //   RoutesName.voiceCalls,
+                    //   arguments: call,
+                    // );
                   }
                 },
               ),

@@ -1,4 +1,9 @@
+import 'package:clone_whatsapp_round34/src/features/calls/data/controller/call_controller.dart';
+import 'package:clone_whatsapp_round34/src/features/calls/data/services/supabase_signaling_service.dart';
+import 'package:clone_whatsapp_round34/src/features/calls/data/services/webrtc_service.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_model.dart';
 
 class VoiceCallPage extends StatefulWidget {
@@ -9,204 +14,286 @@ class VoiceCallPage extends StatefulWidget {
 }
 
 class _VoiceCallPageState extends State<VoiceCallPage> {
-  bool _isPanelExpanded = false;
+  late CallModel _call;
+  late String _displayName;
+  String? _avatarUrl;
 
-  double get _collapsedHeight => 210;
-  double get _expandedHeight => 300;
+  CallController? _controller;
+  bool _logicInitialized = false;
 
-  void _togglePanel() {
-    setState(() {
-      _isPanelExpanded = !_isPanelExpanded;
-    });
-  }
-
-  CallModel? _call;
+  Duration _elapsed = Duration.zero;
+  Ticker? _ticker;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Read CallModel once (safely)
+
+    if (_logicInitialized) return;
+
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is CallModel) {
       _call = args;
+    } else {
+      // Fallback dummy
+      _call = CallModel(
+        id: 'local',
+        name: 'Unknown contact',
+        avatarUrl: "",
+        isVerified: false,
+        lastCallTime: 'Now',
+        bgImgUrl: '',
+        isVideoCall: false,
+        isIncoming: false,
+        isMissed: false,
+        timeLabel: '',
+      );
     }
+
+    _displayName = _call.name ?? 'Unknown contact';
+    _avatarUrl = _call.avatarUrl;
+
+    _initCallLogic();
+    _logicInitialized = true;
+  }
+
+  Future<void> _initCallLogic() async {
+    // Init controller (this side is caller for now)
+    final supabase = Supabase.instance.client;
+    final signaling = SupabaseSignalingService(supabase);
+    final webrtc = WebRtcService();
+
+    final controller = CallController(
+      signaling: signaling,
+      webrtc: webrtc,
+      currentUserId: 'CURRENT_USER_ID', // TODO: replace with real user id
+    );
+
+    _controller = controller;
+
+    final callId = _call.id ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
+
+    await controller.initAsCaller(
+      newCallId: callId,
+      isVideoCall: false,
+    );
+
+    // Start fake duration timer
+    _ticker = Ticker((elapsed) {
+      if (!mounted) return;
+      setState(() => _elapsed = elapsed);
+    })
+      ..start();
+  }
+
+  @override
+  void dispose() {
+    _ticker?.dispose();
+    _controller?.hangup(); // ignore future
+    super.dispose();
+  }
+
+  String get _elapsedText {
+    final mm = _elapsed.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final ss = _elapsed.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$mm:$ss';
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // Use data from CallModel when available, otherwise safe defaults
-    final String displayName = _call?.name ?? 'Unknown contact';
-    final String displayDuration = _call?.timeLabel ?? '00:00';
-    final String? avatarUrl = _call?.avatarUrl;
-
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFFE8E3DC),
       body: Stack(
         children: [
-          // 1) Wallpaper background (full screen)
+          // Background doodle image
           Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/calls/wa_wallpaper.jpg'),
-                  fit: BoxFit.cover,
-                  opacity: 0.4,
-                ),
-              ),
+            child: Image.asset(
+              'assets/images/calls/voice_bg_image.png',
+              fit: BoxFit.cover,
             ),
           ),
 
-          // 2) Top bar: back + lock + text + add person
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                children: const [
-                  BackButton(color: Colors.white),
-                  // SizedBox(width: 4),
-                  Spacer(),
-                  Icon(Icons.lock, color: Colors.white, size: 18),
-                  SizedBox(width: 6),
-                  Text(
-                    'End-to-End Encrypted',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Spacer(),
-                  Icon(
-                    Icons.person_add_alt_1_outlined,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 3) Center avatar + name + duration
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 120),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  //Avatar
-                  _MainAvatar(
-                    avatarUrl: avatarUrl,
-                    size: 52,
-                  ),
-                  const SizedBox(height: 16),
-
-                  //Name
-                  Text(
-                    displayName,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  //Duration(should be count the real min,sec)
-                  Text(
-                    displayDuration,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 4) Bottom sheet: dark panel + controls + participants
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeInOut,
-              height: _isPanelExpanded ? _expandedHeight : _collapsedHeight,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF202C33), // WhatsApp dark call panel color
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Grab handle
-                  // it wraps another widget (its child) to add interactivity to it.
-
-                  //it display the button that we can use it to open/hide (expand or not) the pannel
-                  GestureDetector(
-                    onTap: _togglePanel,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12, bottom: 10),
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(999),
+            child: Column(
+              children: [
+                // Top bar
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    children: const [
+                      BackButton(color: Colors.black87),
+                      Spacer(),
+                      Icon(Icons.lock, size: 18, color: Colors.black87),
+                      SizedBox(width: 6),
+                      Text(
+                        'End-to-End Encrypted',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  //Actual Data
-                  // Controls row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
-                      _VoiceControlButton(
-                        icon: Icons.volume_up_rounded,
-                        label: 'Speaker',
-                      ),
-                      _VoiceControlButton(
-                        icon: Icons.videocam_rounded,
-                        label: 'Video',
-                      ),
-                      _VoiceControlButton(
-                        icon: Icons.mic_rounded,
-                        label: 'Mute',
-                      ),
-                      _VoiceControlButton(
-                        icon: Icons.call_end_rounded,
-                        label: 'End',
-                        isDestructive: true,
-                      ),
+                      Spacer(),
+                      Icon(Icons.person_add_alt_1,
+                          size: 22, color: Colors.black87),
                     ],
                   ),
+                ),
 
-                  const SizedBox(height: 18),
+                const Spacer(),
 
-                  // Extra participants only when expanded
-                  if (_isPanelExpanded) ...[
-                    const _ParticipantTile(
-                      title: 'Add Person',
-                      isAddPerson: true,
-                    ),
-                    const SizedBox(height: 4),
-                    //if (_call != null)
-                    _ParticipantTile(
-                      title: displayName ?? "Sender Name",
-                      avatarUrl: avatarUrl ??
-                          'assets/images/calls/avatar_default_img.jpeg',
-                    ),
-                  ],
-                ],
+                // Avatar
+                CircleAvatar(
+                  radius: 56,
+                  backgroundColor: Colors.white,
+                  child: ClipOval(
+                    child: _buildAvatar(_avatarUrl),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Name
+                Text(
+                  _displayName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // Call duration
+                Text(
+                  _elapsedText,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const Spacer(),
+
+                _VoiceBottomPanel(
+                  onEnd: () {
+                    _controller?.hangup();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(String? avatarUrl) {
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      return Image.network(
+        avatarUrl,
+        width: 96,
+        height: 96,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/images/calls/avatar_default_img.jpeg',
+          width: 96,
+          height: 96,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Image.asset(
+      'assets/images/calls/avatar_default_img.jpeg',
+      width: 96,
+      height: 96,
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+class _VoiceBottomPanel extends StatelessWidget {
+  const _VoiceBottomPanel({required this.onEnd});
+
+  final VoidCallback onEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 210,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFF202C33),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 12),
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white30,
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const _VCButton(icon: Icons.volume_up_rounded, label: 'Speaker'),
+              const _VCButton(icon: Icons.videocam_rounded, label: 'Video'),
+              const _VCButton(icon: Icons.mic_rounded, label: 'Mute'),
+              _VCButton(
+                icon: Icons.call_end_rounded,
+                label: 'End',
+                destructive: true,
+                onTap: onEnd,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const _ParticipantTile(title: 'Add Person', isAdd: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _VCButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool destructive;
+  final VoidCallback? onTap;
+
+  const _VCButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.destructive = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = destructive ? Colors.red : const Color(0xFF1F2C34);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(26),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: bgColor,
+            child: Icon(icon, color: Colors.white),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white70, fontSize: 11),
           ),
         ],
       ),
@@ -214,99 +301,25 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
   }
 }
 
-/// Center avatar – network with asset fallback
-class _MainAvatar extends StatelessWidget {
-  final String? avatarUrl;
-  final double size;
-
-  const _MainAvatar({
-    required this.avatarUrl,
-    required this.size,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: size,
-      backgroundColor: Colors.white24,
-      child: ClipOval(
-        child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-            ? Image.network(
-                avatarUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
-                  'assets/images/calls/avatar_default_img.jpeg',
-                  fit: BoxFit.cover,
-                ),
-              )
-            : Image.asset(
-                'assets/images/calls/avatar_default_img.jpeg',
-                fit: BoxFit.cover,
-              ),
-      ),
-    );
-  }
-}
-
-/// Round control button in the bottom panel
-//for Speaker , Video , Mute , End the call
-class _VoiceControlButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isDestructive;
-
-  const _VoiceControlButton({
-    required this.icon,
-    required this.label,
-    this.isDestructive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color bg = isDestructive
-        ? Colors.red
-        : const Color(0xFF1F2C34); // slightly lighter
-
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: bg,
-          child: Icon(icon, color: Colors.white),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 11,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Participant tiles shown when the panel is expanded
 class _ParticipantTile extends StatelessWidget {
   final String title;
   final String? avatarUrl;
-  final bool isAddPerson;
+  final bool isAdd;
 
   const _ParticipantTile({
+    super.key,
     required this.title,
     this.avatarUrl,
-    this.isAddPerson = false,
+    this.isAdd = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       leading: CircleAvatar(
-        backgroundColor: isAddPerson ? const Color(0xFF00A884) : Colors.white10,
-        child: isAddPerson
-            ? const Icon(Icons.person_add_alt_1_rounded, color: Colors.white)
+        backgroundColor: isAdd ? const Color(0xFF00A884) : Colors.white24,
+        child: isAdd
+            ? const Icon(Icons.person_add_alt_1, color: Colors.white)
             : ClipOval(
                 child: (avatarUrl != null && avatarUrl!.isNotEmpty)
                     ? Image.network(
@@ -314,7 +327,6 @@ class _ParticipantTile extends StatelessWidget {
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Image.asset(
                           'assets/images/calls/avatar_default_img.jpeg',
-                          fit: BoxFit.cover,
                         ),
                       )
                     : Image.asset(
@@ -323,11 +335,39 @@ class _ParticipantTile extends StatelessWidget {
                       ),
               ),
       ),
-      title: //ex:Add Person
-          Text(
+      title: Text(
         title,
         style: const TextStyle(color: Colors.white),
       ),
     );
+  }
+}
+
+/// Simple manual ticker (1-second interval) – no TickerProvider needed.
+class Ticker {
+  Ticker(this.onTick);
+
+  final void Function(Duration) onTick;
+  Duration _elapsed = Duration.zero;
+  bool _running = false;
+  late final Stopwatch _stopwatch;
+
+  void start() {
+    if (_running) return;
+    _running = true;
+    _stopwatch = Stopwatch()..start();
+    _tick();
+  }
+
+  Future<void> _tick() async {
+    while (_running) {
+      await Future<void>.delayed(const Duration(seconds: 1));
+      _elapsed = _stopwatch.elapsed;
+      onTick(_elapsed);
+    }
+  }
+
+  void dispose() {
+    _running = false;
   }
 }

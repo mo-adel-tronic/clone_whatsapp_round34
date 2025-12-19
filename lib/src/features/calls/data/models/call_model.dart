@@ -7,7 +7,9 @@ class CallModel {
   final bool isIncoming; // true → green up arrow, false → red down arrow
   final bool isMissed; // missed calls can be red text, etc.
   final String timeLabel; // "10 minutes ago", "Yesterday"
-  final bool isVerified; // green verified badge
+  final bool isVerified;
+  final String lastCallTime;
+  // green verified badge
 
   const CallModel({
     required this.id,
@@ -18,6 +20,7 @@ class CallModel {
     required this.isIncoming,
     required this.isMissed,
     required this.timeLabel,
+    required this.lastCallTime,
     this.isVerified = false,
   });
 }
