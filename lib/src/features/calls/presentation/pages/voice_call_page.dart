@@ -1,13 +1,15 @@
-import 'package:clone_whatsapp_round34/src/features/calls/data/controller/call_controller.dart';
-import 'package:clone_whatsapp_round34/src/features/calls/data/services/supabase_signaling_service.dart';
-import 'package:clone_whatsapp_round34/src/features/calls/data/services/webrtc_service.dart';
+import 'package:clone_whatsapp_round34/src/features/calls/services/igora/agora_config.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_model.dart';
 
 class VoiceCallPage extends StatefulWidget {
   const VoiceCallPage({super.key});
+
+  static const String routeName = '/voice-call';
 
   @override
   State<VoiceCallPage> createState() => _VoiceCallPageState();
@@ -18,23 +20,20 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
   late String _displayName;
   String? _avatarUrl;
 
-  CallController? _controller;
-  bool _logicInitialized = false;
+  RtcEngine? _engine;
+  String _channelId = '';
+  bool _joined = false;
 
   Duration _elapsed = Duration.zero;
-  Ticker? _ticker;
+  _Ticker? _ticker;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    if (_logicInitialized) return;
-
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is CallModel) {
       _call = args;
     } else {
-      // Fallback dummy
       _call = CallModel(
         id: 'local',
         name: 'Unknown contact',
@@ -48,37 +47,60 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
         timeLabel: '',
       );
     }
-
     _displayName = _call.name ?? 'Unknown contact';
     _avatarUrl = _call.avatarUrl;
+    _channelId = AgoraConfig.buildChannelId(
+        _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}');
 
-    _initCallLogic();
-    _logicInitialized = true;
+    _initAgora();
   }
 
-  Future<void> _initCallLogic() async {
-    // Init controller (this side is caller for now)
-    final supabase = Supabase.instance.client;
-    final signaling = SupabaseSignalingService(supabase);
-    final webrtc = WebRtcService();
+  Future<void> _initAgora() async {
+    // Web: UI only – just start the timer and return
+    if (kIsWeb) {
+      _ticker = _Ticker((elapsed) {
+        if (!mounted) return;
+        setState(() => _elapsed = elapsed);
+      })
+        ..start();
+      return;
+    }
 
-    final controller = CallController(
-      signaling: signaling,
-      webrtc: webrtc,
-      currentUserId: 'CURRENT_USER_ID', // TODO: replace with real user id
+    // Request permissions (Android/iOS)
+    await [
+      Permission.microphone,
+    ].request();
+
+    final engine = createAgoraRtcEngine();
+    _engine = engine;
+
+    await engine.initialize(const RtcEngineContext(
+      appId: AgoraConfig.appId,
+      channelProfile: ChannelProfileType.channelProfileCommunication,
+    ));
+
+    engine.registerEventHandler(
+      RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          setState(() => _joined = true);
+        },
+        onLeaveChannel: (RtcConnection connection, RtcStats stats) {
+          setState(() => _joined = false);
+        },
+      ),
     );
 
-    _controller = controller;
+    await engine.enableAudio();
 
-    final callId = _call.id ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
-
-    await controller.initAsCaller(
-      newCallId: callId,
-      isVideoCall: false,
+    await engine.joinChannel(
+      token: AgoraConfig.devToken,
+      channelId: _channelId,
+      uid: 0, // 0 means "let Agora assign a UID"
+      options: const ChannelMediaOptions(),
     );
 
-    // Start fake duration timer
-    _ticker = Ticker((elapsed) {
+    // Start timer
+    _ticker = _Ticker((elapsed) {
       if (!mounted) return;
       setState(() => _elapsed = elapsed);
     })
@@ -88,7 +110,10 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
   @override
   void dispose() {
     _ticker?.dispose();
-    _controller?.hangup(); // ignore future
+    if (!kIsWeb && _engine != null) {
+      _engine!.leaveChannel();
+      _engine!.release();
+    }
     super.dispose();
   }
 
@@ -104,14 +129,12 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
       backgroundColor: const Color(0xFFE8E3DC),
       body: Stack(
         children: [
-          // Background doodle image
           Positioned.fill(
             child: Image.asset(
               'assets/images/calls/voice_bg_image.png',
               fit: BoxFit.cover,
             ),
           ),
-
           SafeArea(
             child: Column(
               children: [
@@ -162,9 +185,8 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
                 ),
                 const SizedBox(height: 6),
 
-                // Call duration
                 Text(
-                  _elapsedText,
+                  _joined ? _elapsedText : 'Calling…',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
@@ -174,9 +196,11 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
                 const Spacer(),
 
                 _VoiceBottomPanel(
-                  onEnd: () {
-                    _controller?.hangup();
-                    Navigator.of(context).pop();
+                  onEnd: () async {
+                    if (!kIsWeb && _engine != null) {
+                      await _engine!.leaveChannel();
+                    }
+                    if (mounted) Navigator.of(context).pop();
                   },
                 ),
               ],
@@ -343,9 +367,9 @@ class _ParticipantTile extends StatelessWidget {
   }
 }
 
-/// Simple manual ticker (1-second interval) – no TickerProvider needed.
-class Ticker {
-  Ticker(this.onTick);
+/// Simple 1-second ticker (no TickerProvider needed)
+class _Ticker {
+  _Ticker(this.onTick);
 
   final void Function(Duration) onTick;
   Duration _elapsed = Duration.zero;

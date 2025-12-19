@@ -1,16 +1,15 @@
-// lib/src/features/calls/presentation/pages/video_call_page.dart
-
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_model.dart';
-import 'package:clone_whatsapp_round34/src/features/calls/data/controller/call_controller.dart';
-import 'package:clone_whatsapp_round34/src/features/calls/data/services/supabase_signaling_service.dart';
-import 'package:clone_whatsapp_round34/src/features/calls/data/services/webrtc_service.dart';
+import 'package:clone_whatsapp_round34/src/features/calls/services/igora/agora_config.dart';
 
 class VideoCallPage extends StatefulWidget {
   const VideoCallPage({super.key});
+
+  static const String routeName = '/video-call';
 
   @override
   State<VideoCallPage> createState() => _VideoCallPageState();
@@ -25,27 +24,14 @@ class _VideoCallPageState extends State<VideoCallPage> {
   late String _displayName;
   String? _avatarUrl;
 
-  late RTCVideoRenderer _localRenderer;
-  late RTCVideoRenderer _remoteRenderer;
-
-  CallController? _controller;
-  bool _logicInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _localRenderer = RTCVideoRenderer();
-    _remoteRenderer = RTCVideoRenderer();
-    _localRenderer.initialize();
-    _remoteRenderer.initialize();
-  }
+  RtcEngine? _engine;
+  String _channelId = '';
+  int? _remoteUid;
+  bool _joined = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    if (_logicInitialized) return;
-
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is CallModel) {
       _call = args;
@@ -57,53 +43,60 @@ class _VideoCallPageState extends State<VideoCallPage> {
         isVerified: false,
         lastCallTime: 'Now',
         bgImgUrl: '',
-        isVideoCall: true,
+        isVideoCall: false,
         isIncoming: false,
         isMissed: false,
         timeLabel: '',
       );
     }
-
     _displayName = _call.name ?? 'Unknown contact';
     _avatarUrl = _call.avatarUrl;
+    _channelId = AgoraConfig.buildChannelId(
+        _call.id ?? 'local_${DateTime.now().millisecondsSinceEpoch}');
 
-    _initCallLogic();
-    _logicInitialized = true;
+    _initAgora();
   }
 
-  Future<void> _initCallLogic() async {
-    final supabase = Supabase.instance.client;
-    final signaling = SupabaseSignalingService(supabase);
-    final webrtc = WebRtcService();
+  Future<void> _initAgora() async {
+    if (kIsWeb) return; // UI only on web
 
-    final controller = CallController(
-      signaling: signaling,
-      webrtc: webrtc,
-      currentUserId: 'CURRENT_USER_ID', // TODO: replace with real user id
+    await [
+      Permission.microphone,
+      Permission.camera,
+    ].request();
+
+    final engine = createAgoraRtcEngine();
+    _engine = engine;
+
+    await engine.initialize(const RtcEngineContext(
+      appId: AgoraConfig.appId,
+      channelProfile: ChannelProfileType.channelProfileCommunication,
+    ));
+
+    engine.registerEventHandler(
+      RtcEngineEventHandler(
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
+          setState(() => _joined = true);
+        },
+        onUserJoined: (RtcConnection connection, int uid, int elapsed) {
+          setState(() => _remoteUid = uid);
+        },
+        onUserOffline:
+            (RtcConnection connection, int uid, UserOfflineReasonType reason) {
+          setState(() => _remoteUid = null);
+        },
+      ),
     );
 
-    _controller = controller;
+    await engine.enableVideo();
+    await engine.startPreview();
 
-    final callId = _call.id ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
-
-    // Start as caller for now
-    await controller.initAsCaller(
-      newCallId: callId,
-      isVideoCall: true,
+    await engine.joinChannel(
+      token: AgoraConfig.devToken,
+      channelId: _channelId,
+      uid: 0,
+      options: const ChannelMediaOptions(),
     );
-
-    // Bind remote stream
-    controller.remoteStreamStream.listen((stream) {
-      if (!mounted) return;
-      setState(() {
-        _remoteRenderer.srcObject = stream;
-      });
-    });
-
-    // Local stream
-    setState(() {
-      _localRenderer.srcObject = controller.localStream;
-    });
   }
 
   void _togglePanel() {
@@ -112,9 +105,10 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void dispose() {
-    _localRenderer.dispose();
-    _remoteRenderer.dispose();
-    _controller?.hangup();
+    if (!kIsWeb && _engine != null) {
+      _engine!.leaveChannel();
+      _engine!.release();
+    }
     super.dispose();
   }
 
@@ -127,12 +121,15 @@ class _VideoCallPageState extends State<VideoCallPage> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Remote video (or fallback image)
+          // Remote video or background
           Positioned.fill(
-            child: _remoteRenderer.srcObject != null
-                ? RTCVideoView(
-                    _remoteRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+            child: (!kIsWeb && _engine != null && _remoteUid != null)
+                ? AgoraVideoView(
+                    controller: VideoViewController.remote(
+                      rtcEngine: _engine!,
+                      canvas: VideoCanvas(uid: _remoteUid),
+                      connection: RtcConnection(channelId: _channelId),
+                    ),
                   )
                 : Image.asset(
                     'assets/images/calls/video_bg_image.png',
@@ -164,7 +161,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
             ),
           ),
 
-          // Small local preview - hidden when panel expanded
+          // Local preview bottom-right (hidden when panel expanded)
           if (!_isPanelExpanded)
             Positioned(
               right: 16,
@@ -174,19 +171,19 @@ class _VideoCallPageState extends State<VideoCallPage> {
                 child: SizedBox(
                   width: 120,
                   height: 160,
-                  child: _localRenderer.srcObject != null
-                      ? RTCVideoView(
-                          _localRenderer,
-                          mirror: true,
-                          objectFit:
-                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  child: (!kIsWeb && _engine != null && _joined)
+                      ? AgoraVideoView(
+                          controller: VideoViewController(
+                            rtcEngine: _engine!,
+                            canvas: const VideoCanvas(uid: 0),
+                          ),
                         )
                       : _buildAvatarPreview(avatarUrl),
                 ),
               ),
             ),
 
-          // Bottom action sheet
+          // Bottom sheet controls
           Align(
             alignment: Alignment.bottomCenter,
             child: AnimatedContainer(
@@ -229,9 +226,11 @@ class _VideoCallPageState extends State<VideoCallPage> {
                         icon: Icons.call_end_rounded,
                         label: 'End',
                         destructive: true,
-                        onTap: () {
-                          _controller?.hangup();
-                          Navigator.of(context).pop();
+                        onTap: () async {
+                          if (!kIsWeb && _engine != null) {
+                            await _engine!.leaveChannel();
+                          }
+                          if (mounted) Navigator.of(context).pop();
                         },
                       ),
                     ],

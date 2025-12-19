@@ -12,6 +12,15 @@
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
+
+
+		<key>NSCameraUsageDescription</key>
+		<string>Needs camera for video calls.</string>
+
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Needs microphone for voice/video calls.</string>
+
+
 		<key>CFBundleName</key>
 		<string>clone_whatsapp_round34</string>
 		<key>CFBundlePackageType</key>
