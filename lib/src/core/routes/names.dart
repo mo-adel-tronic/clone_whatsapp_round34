@@ -8,6 +8,7 @@ class RoutesName {
   // ! Home
   static const home = '/home';
   static const starredMessages = '/starred_messages';
+  static const contacts = '/contacts';
   // ! Chat
   static const chat = '/chat';
   static const camera = '/camera';

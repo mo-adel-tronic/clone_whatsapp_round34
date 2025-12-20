@@ -22,10 +22,26 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "app_name": MessageLookupByLibrary.simpleMessage("WhatsApp Clone"),
     "btn_loading": MessageLookupByLibrary.simpleMessage("Processing..."),
     "btn_next": MessageLookupByLibrary.simpleMessage("Next"),
     "error_auto_verify": MessageLookupByLibrary.simpleMessage(
       "We couldn\'t automatically verify your phone number. Please enter it manually.",
+    ),
+    "error_country_code": MessageLookupByLibrary.simpleMessage(
+      "Invalid country code. Please check and try again.",
+    ),
+    "error_otp_empty": MessageLookupByLibrary.simpleMessage(
+      "Please enter the OTP code.",
+    ),
+    "error_otp_send_failed": MessageLookupByLibrary.simpleMessage(
+      "Failed to send OTP. Please try again.",
+    ),
+    "error_phone_empty": MessageLookupByLibrary.simpleMessage(
+      "Please enter your phone number.",
+    ),
+    "error_phone_number": MessageLookupByLibrary.simpleMessage(
+      "Invalid phone number. Please check and try again.",
     ),
     "error_unknown": MessageLookupByLibrary.simpleMessage(
       "An unknown error occurred. Please try again.",
@@ -61,7 +77,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "login_field_hint": MessageLookupByLibrary.simpleMessage("Phone number"),
     "login_subtitle": MessageLookupByLibrary.simpleMessage(
-      "WhatsApp will need to verify your number",
+      "Please confirm your country code and enter your phone number",
     ),
     "login_subtitle_link": MessageLookupByLibrary.simpleMessage(
       "What\'s my number?",
@@ -69,6 +85,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "login_title": MessageLookupByLibrary.simpleMessage(
       "Enter your phone number",
     ),
+    "otp_confirm_text": MessageLookupByLibrary.simpleMessage(
+      "Please confirm your OTP code",
+    ),
+    "otp_page_resend_btn": MessageLookupByLibrary.simpleMessage("Resend code"),
+    "otp_page_resend_msg": MessageLookupByLibrary.simpleMessage(
+      "OTP has been resent.",
+    ),
+    "otp_page_subtitle": MessageLookupByLibrary.simpleMessage(
+      "Please enter the 6-digit verification code sent to your phone number.",
+    ),
+    "otp_page_title": MessageLookupByLibrary.simpleMessage("Enter OTP"),
+    "policy_privacy": MessageLookupByLibrary.simpleMessage("Privacy Policy. "),
+    "policy_read": MessageLookupByLibrary.simpleMessage("Read our "),
+    "policy_tap": MessageLookupByLibrary.simpleMessage(
+      "Tap \"Agree and continue\" to accept the ",
+    ),
+    "policy_terms": MessageLookupByLibrary.simpleMessage("Terms of Services."),
     "search_hint": MessageLookupByLibrary.simpleMessage(
       "Start typing to search",
     ),

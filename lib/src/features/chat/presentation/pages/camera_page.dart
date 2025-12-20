@@ -1,4 +1,4 @@
-import 'package:clone_whatsapp_round34/src/core/services/permission_service.dart';
+import 'package:clone_whatsapp_round34/src/core/services/services.dart';
 import 'package:clone_whatsapp_round34/src/features/chat/domain/repositories/camera_repository.dart';
 import 'package:clone_whatsapp_round34/src/features/chat/domain/repositories/camera_repository_impl.dart';
 import 'package:clone_whatsapp_round34/src/features/chat/presentation/bloc/camera_bloc.dart';
@@ -52,6 +52,8 @@ class _CameraPageState extends State<CameraPage> {
                 !state.controller!.value.isInitialized) {
               return const Center(child: CircularProgressIndicator());
             }
+            //TODO: Don't forget that method can not be null
+            return Container();
           }),
         ));
   }

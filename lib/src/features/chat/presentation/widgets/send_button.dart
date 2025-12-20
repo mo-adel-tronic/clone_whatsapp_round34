@@ -1,14 +1,17 @@
-import 'dart:async';
+import 'package:clone_whatsapp_round34/src/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:clone_whatsapp_round34/src/features/chat/presentation/bloc/chat_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/chat_bloc.dart';
-import '../bloc/chat_event.dart';
-import '../bloc/chat_state.dart';
-import 'package:clone_whatsapp_round34/src/core/theme/app_theme.dart';
 
 class SendButton extends StatefulWidget {
   final TextEditingController controller;
-  const SendButton({super.key, required this.controller});
+  final String roomId;
+
+  const SendButton({
+    super.key,
+    required this.controller,
+    required this.roomId,
+  });
 
   @override
   State<SendButton> createState() => _SendButtonState();
@@ -16,127 +19,72 @@ class SendButton extends StatefulWidget {
 
 class _SendButtonState extends State<SendButton> {
   bool _isLocallyRecording = false;
-  // For demo we simulate a file path after stop
-  String? _lastRecordedFakePath;
+  
+  // دالة إرسال النص الحقيقية
+  void _sendText() {
+    final text = widget.controller.text.trim();
+    if (text.isEmpty) return;
 
+    context.read<ChatBloc>().add(
+      SendMessageEvent(content: text, roomId: widget.roomId)
+    );
+
+    widget.controller.clear();
+    // إيقاف مؤشر الكتابة (اختياري)
+    // context.read<ChatBloc>().add(TypingEvent("")); 
+  }
+
+  // --- دوال التسجيل (سنتركها كما هي حالياً حتى نطبق الـ Storage) ---
   void _startLocalRecording() {
     setState(() => _isLocallyRecording = true);
-    context.read<ChatBloc>().add(StartRecordingEvent());
-    // TODO: call actual recorder service.start()
+    // context.read<ChatBloc>().add(StartRecordingEvent());
   }
 
   void _stopLocalRecording() {
     setState(() => _isLocallyRecording = false);
-    context.read<ChatBloc>().add(StopRecordingEvent());
-    // simulate file path for demo
-    _lastRecordedFakePath = '/tmp/voice${DateTime.now().millisecondsSinceEpoch}.aac';
+    // context.read<ChatBloc>().add(StopRecordingEvent());
   }
 
-  void _cancelLocalRecording() {
-    setState(() => _isLocallyRecording = false);
-    _lastRecordedFakePath = null;
-    context.read<ChatBloc>().add(CancelRecordingEvent());
-    // TODO: recorder service.cancel()
-  }
-
-  Future<void> _showAfterRecordOptions() async {
-    if (_lastRecordedFakePath == null) return;
-
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      builder: (_) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.send),
-                title: const Text('Send'),
-                onTap: () => Navigator.of(context).pop('send'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete),
-                title: const Text('Delete'),
-                onTap: () => Navigator.of(context).pop('delete'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.close),
-                title: const Text('Close'),
-                onTap: () => Navigator.of(context).pop('close'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (action == 'send') {
-      context.read<ChatBloc>().add(SendRecordingEvent(_lastRecordedFakePath!));
-      _lastRecordedFakePath = null;
-    } else if (action == 'delete') {
-      context.read<ChatBloc>().add(DeleteRecordingEvent());
-      _lastRecordedFakePath = null;
-    }
-  }
-
-  void _sendText() {
-    final text = widget.controller.text.trim();
-    if (text.isEmpty) return;
-    context.read<ChatBloc>().add(SendMessageEvent(text));
-    widget.controller.clear();
-    context.read<ChatBloc>().add(TypingEvent(""));
-  }
+  // void _cancelLocalRecording() {
+  //   setState(() => _isLocallyRecording = false);
+  //   // context.read<ChatBloc>().add(CancelRecordingEvent());
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatBloc, ChatState>(
-      builder: (context, state) {
-        bool isTyping = false;
-        bool isRecording = false;
-        if (state is ChatLoadedState) {
-          isTyping = state.currentText.isNotEmpty;
-          isRecording = state.isRecording;
-        }
-
-        final showAsRecording = isRecording || _isLocallyRecording;
+    // نستمع لتغييرات الـ Bloc لمعرفة هل نكتب أم لا
+    // ولكن بما أننا نستخدم Controller محلي، يمكننا الاعتماد عليه لتحديث الأيقونة
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: widget.controller,
+      builder: (context, value, child) {
+        final isTyping = value.text.trim().isNotEmpty;
+        final showAsRecording = !isTyping && _isLocallyRecording;
 
         return GestureDetector(
-          onTap: () async {
+          onTap: () {
             if (isTyping) {
-              _sendText();
+              _sendText(); // إرسال النص
             } else {
-              // quick tap when not typing -> short recording demo
-              _startLocalRecording();
-              await Future.delayed(const Duration(seconds: 2));
-              if (_isLocallyRecording) {
-                _stopLocalRecording();
-                await _showAfterRecordOptions();
-              }
+              // منطق الضغط السريع للتسجيل (يمكن تفعيله لاحقاً)
+              print("Mic tapped - Start recording logic here");
             }
           },
+          // منطق الضغط المطول للتسجيل
           onLongPress: () {
-            _startLocalRecording();
+            if (!isTyping) _startLocalRecording();
           },
-          onLongPressUp: () async {
-            if (_isLocallyRecording) {
-              _stopLocalRecording();
-              await _showAfterRecordOptions();
-            }
-          },
-          onVerticalDragEnd: (details) {
-            if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
-              if (_isLocallyRecording) {
-                _cancelLocalRecording();
-              }
-            }
+          onLongPressUp: () {
+            if (_isLocallyRecording) _stopLocalRecording();
           },
           child: CircleAvatar(
-            radius: 25,
-            backgroundColor: showAsRecording ? Colors.red : AppTheme.lightTheme.primaryColor,
+            radius: 24, // حجم متناسق
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: Icon(
-              isTyping ? Icons.send : (showAsRecording ? Icons.stop : Icons.mic),
-              color: AppTheme.lightTheme.colorScheme.onPrimary,
-              size: 26,
+              isTyping 
+                  ? Icons.send 
+                  : (showAsRecording ? Icons.stop : Icons.mic),
+              color: Colors.white,
+              size: 24,
             ),
           ),
         );

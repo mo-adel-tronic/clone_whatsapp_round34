@@ -1,5 +1,5 @@
-import 'package:whatsapp_clone_camera/domain/repositories/camera_repository.dart';
-
+import 'package:camera/camera.dart';
+import 'package:clone_whatsapp_round34/src/features/chat/domain/repositories/camera_repository.dart';
 
 class CameraRepositoryImpl implements CameraRepository {
 @override

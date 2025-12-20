@@ -1,74 +1,90 @@
+import 'package:clone_whatsapp_round34/src/features/chat/data/models/message_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc()
-      : super(ChatLoadedState(
-          messages: [
-            {"msg": "Bro I have secret identity\nNo one does know about me!!", "isMe": false},
-            {"msg": "What's Secret ??", "isMe": true},
-            {"msg": "bro", "isMe": true},
-            {"msg": "Hello", "isMe": false},
-            {"msg": "Are you free now?", "isMe": true},
-            {"msg": "Nope!\nWhat happen tell me!", "isMe": false},
-            {"msg": "I can't tell you now!", "isMe": true},
-            {"msg": "Ok\nCome to Parade at 11:00 AM", "isMe": false},
-            {"msg": "Ok!", "isMe": true},
-            {"msg": "Should I call you now ?", "isMe": false},
-          ],
-        )) {
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  ChatBloc() : super(ChatInitial()) {
+    on<LoadMessagesEvent>(_onLoadMessages);
     on<SendMessageEvent>(_onSendMessage);
+    on<MarkMessagesAsReadEvent>(_onMarkAsRead);
     on<TypingEvent>(_onTyping);
-    on<StartRecordingEvent>(_onStartRecording);
-    on<StopRecordingEvent>(_onStopRecording);
-    on<SendRecordingEvent>(_onSendRecording);
-    on<DeleteRecordingEvent>(_onDeleteRecording);
-    on<CancelRecordingEvent>(_onCancelRecording);
-    // add handlers for attachments if needed
   }
 
-  void _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    final updated = List<Map<String, dynamic>>.from(current.messages)
-      ..add({"msg": event.message, "isMe": true});
-
-    emit(current.copyWith(messages: updated, currentText: "", isTyping: false));
+  // Handle typing events (no-op for now). This prevents `add` calls failing
+  // when the UI emits `TypingEvent`. You can expand this to broadcast
+  // typing presence via Supabase realtime or update a typing state.
+  Future<void> _onTyping(TypingEvent event, Emitter<ChatState> emit) async {
+    // Currently we don't change the ChatState for typing updates.
+    // If desired, emit a transient state here or notify server of typing.
+    return;
   }
 
-  void _onTyping(TypingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    emit(current.copyWith(isTyping: event.currentText.isNotEmpty, currentText: event.currentText));
+  // 1. الاستماع للرسائل (Real-time)
+  Future<void> _onLoadMessages(LoadMessagesEvent event, Emitter<ChatState> emit) async {
+    emit(ChatLoading());
+
+    // نستخدم emit.forEach للاستماع للـ Stream وتحديث الحالة تلقائياً
+    await emit.forEach(
+      _supabase
+          .from('messages')
+          .stream(primaryKey: ['id'])
+          .eq('room_id', event.roomId)
+          .order('created_at', ascending: false), // الأحدث أولاً
+      onData: (List<Map<String, dynamic>> data) {
+        final messages = data.map((e) => MessageModel.fromJson(e)).toList();
+        return ChatLoadedState(messages: messages);
+      },
+      onError: (error, stackTrace) {
+        return ChatError("Failed to load messages: $error");
+      },
+    );
   }
 
-  void _onStartRecording(StartRecordingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    emit(current.copyWith(isRecording: true, recordingPath: null));
-    // TODO: call recorder service to actually start recording
+  // 2. إرسال رسالة
+  Future<void> _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
+    if (event.content.trim().isEmpty) return;
+
+    try {
+      final myId = _supabase.auth.currentUser!.id;
+
+      // أ) إدراج الرسالة في الجدول
+      await _supabase.from('messages').insert({
+        'room_id': event.roomId,
+        'sender_id': myId,
+        'content': event.content,
+        'message_type': 'text',
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      // ب) تحديث آخر رسالة في الغرفة (ليظهر في الصفحة الرئيسية)
+      await _supabase.from('rooms').update({
+        'last_message': event.content,
+        'last_message_time': DateTime.now().toIso8601String(),
+      }).eq('id', event.roomId);
+
+    } catch (e) {
+      // يمكن معالجة الخطأ هنا (مثلاً إظهار SnackBar)
+      print("Error sending message: $e");
+    }
   }
 
-  void _onStopRecording(StopRecordingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    emit(current.copyWith(isRecording: false));
-    // TODO: when recorder stops, service should provide filePath and you should dispatch SendRecordingEvent(filePath)
-  }
-
-  void _onSendRecording(SendRecordingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    final updated = List<Map<String, dynamic>>.from(current.messages)
-      ..add({"msg": "[Voice message] ${event.filePath}", "isMe": true});
-    emit(current.copyWith(messages: updated, recordingPath: null));
-  }
-
-  void _onDeleteRecording(DeleteRecordingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    emit(current.copyWith(isRecording: false, recordingPath: null));
-    // TODO: instruct recorder service to delete temporary file if exists
-  }
-
-  void _onCancelRecording(CancelRecordingEvent event, Emitter<ChatState> emit) {
-    final current = state as ChatLoadedState;
-    emit(current.copyWith(isRecording: false, recordingPath: null));
-    // TODO: cancel and remove file
+  //  دالة تنفيذ التحديث في قاعدة البيانات
+  Future<void> _onMarkAsRead(MarkMessagesAsReadEvent event, Emitter<ChatState> emit) async {
+    final myId = _supabase.auth.currentUser?.id;
+    
+    try {
+      await _supabase.from('messages').update({
+        'is_read': true
+      }).match({
+        'room_id': event.roomId,
+        'is_read': false, // نحدث فقط غير المقروء
+      }).neq('sender_id', myId!); // ⛔️ لا تعلم رسائلي أنا كمقروءة (شرط مهم)
+    } catch (e) {
+      print("Error marking as read: $e");
+    }
   }
 }

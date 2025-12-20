@@ -199,7 +199,7 @@ class _VoiceCallPageState extends State<VoiceCallPage> {
                     const SizedBox(height: 4),
                     //if (_call != null)
                     _ParticipantTile(
-                      title: displayName ?? "Sender Name",
+                      title: displayName,
                       avatarUrl: avatarUrl ??
                           'assets/images/calls/avatar_default_img.jpeg',
                     ),
@@ -230,9 +230,9 @@ class _MainAvatar extends StatelessWidget {
       radius: size,
       backgroundColor: Colors.white24,
       child: ClipOval(
-        child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-            ? Image.network(
-                avatarUrl!,
+        child: (avatarUrl?.isNotEmpty ?? false)
+          ? Image.network(
+            avatarUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Image.asset(
                   'assets/images/calls/avatar_default_img.jpeg',
@@ -308,9 +308,9 @@ class _ParticipantTile extends StatelessWidget {
         child: isAddPerson
             ? const Icon(Icons.person_add_alt_1_rounded, color: Colors.white)
             : ClipOval(
-                child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                    ? Image.network(
-                        avatarUrl!,
+                child: (avatarUrl?.isNotEmpty ?? false)
+                  ? Image.network(
+                    avatarUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Image.asset(
                           'assets/images/calls/avatar_default_img.jpeg',

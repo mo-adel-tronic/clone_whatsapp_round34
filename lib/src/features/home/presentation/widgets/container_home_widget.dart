@@ -35,40 +35,61 @@ class ContainerHomeWidget extends StatelessWidget {
         height: 60,
         child: Row(
           children: [
-            ClipRect(
-              child: Image.asset(profileImage),
-            ),
+            // Avatar with fixed size
             SizedBox(
-              width: 10,
+              width: 52,
+              height: 52,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: profileImage.isNotEmpty
+                    ? (profileImage.startsWith('http')
+                        ? Image.network(profileImage, fit: BoxFit.cover)
+                        : Image.asset(profileImage, fit: BoxFit.cover))
+                    : Container(color: Colors.grey.shade300),
+              ),
             ),
-            // LEFT SIDE (TEXT + ICONS)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // User Name
-                Text(
-                  userName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+            const SizedBox(width: 10),
+
+            // LEFT SIDE (TEXT + ICONS) — make flexible so right side can fit
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // User Name
+                  Text(
+                    userName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
-                // Subtitle Row
-                Row(
-                  children: [
-                    _buildLeftIcon(),
-                    const SizedBox(width: 5),
-                    Text(subtitle),
-                  ],
-                ),
-              ],
+                  // Subtitle Row
+                  Row(
+                    children: [
+                      _buildLeftIcon(),
+                      const SizedBox(width: 6),
+                      // Subtitle should be flexible and ellipsize if too long
+                      Expanded(
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            Spacer(),
+
             // RIGHT SIDE (DATE + UNREAD MESSAGE + SETTINGS ICONS)
+            const SizedBox(width: 8),
             _buildRightSide()
           ],
         ),

@@ -86,8 +86,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
                 child: SizedBox(
                   width: 120,
                   height: 160,
-                  child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                      ? Image.network(
+                      child: (avatarUrl?.isNotEmpty ?? false)
+                        ? Image.network(
                           avatarUrl!,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Image.asset(
@@ -224,9 +224,9 @@ class _ParticipantTile extends StatelessWidget {
         child: isAdd
             ? const Icon(Icons.person_add_alt_1, color: Colors.white)
             : ClipOval(
-                child: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                    ? Image.network(
-                        avatarUrl!,
+                child: (avatarUrl?.isNotEmpty ?? false)
+                  ? Image.network(
+                    avatarUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Image.asset(
                           'assets/images/calls/avatar_default_img.jpeg',

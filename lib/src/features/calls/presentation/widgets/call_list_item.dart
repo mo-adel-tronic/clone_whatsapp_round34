@@ -1,5 +1,3 @@
-// lib/src/features/calls/presentation/widgets/call_list_item.dart
-
 import 'package:flutter/material.dart';
 import 'package:clone_whatsapp_round34/src/core/theme/app_color.dart';
 import 'package:clone_whatsapp_round34/src/features/calls/data/models/call_model.dart';
@@ -24,7 +22,7 @@ class CallListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final hasImage = call.avatarUrl != null && call.avatarUrl!.isNotEmpty;
+    final hasImage = call.avatarUrl.isNotEmpty;
 
     final nameColor = call.isMissed
         ? AppColors.error
@@ -44,11 +42,11 @@ class CallListItem extends StatelessWidget {
                   fit: BoxFit.cover,
                 )
               : Image.network(
-                  call.avatarUrl!,
+                  call.avatarUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     //  if network image fails
-                    print(error);
+                    // print(error);
                     return Image.asset(
                       'assets/images/calls/avatar_default_img.jpeg',
                       fit: BoxFit.cover,

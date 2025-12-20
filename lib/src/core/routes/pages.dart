@@ -2,6 +2,7 @@ import 'package:clone_whatsapp_round34/src/core/animation/animation.dart';
 import 'package:clone_whatsapp_round34/src/features/auth/presentation/pages/login_page.dart';
 import 'package:clone_whatsapp_round34/src/features/auth/presentation/pages/otp_page.dart';
 import 'package:clone_whatsapp_round34/src/features/auth/presentation/pages/finger_print_page.dart';
+import 'package:clone_whatsapp_round34/src/features/home/presentation/pages/contacts_page.dart';
 import 'package:clone_whatsapp_round34/src/features/welcome/presentation/pages/welcome_page.dart';
 import 'package:clone_whatsapp_round34/src/features/home/presentation/pages/home_page.dart';
 import 'package:clone_whatsapp_round34/src/features/home/presentation/pages/starred_messages_page.dart';
@@ -28,15 +29,24 @@ class AppRoute {
       case RoutesName.login:
         return CustomPageRoute(page: const LoginPage());
       case RoutesName.otp:
-        return CustomPageRoute(page: const OtpPage());
+        final args = settings?.arguments as Map;
+        return CustomPageRoute(page: OtpPage(phone: args['phone'],));
       case RoutesName.fingerPrint:
         return CustomPageRoute(page: const FingerPrintPage());
       case RoutesName.home:
         return CustomPageRoute(page: const HomePage());
       case RoutesName.starredMessages:
         return CustomPageRoute(page: const StarredMessagesPage());
+      case RoutesName.contacts:
+        return CustomPageRoute(page: const ContactsPage());
       case RoutesName.chat:
-        return CustomPageRoute(page:  ChatPage());
+        final args = settings?.arguments as Map;
+        return CustomPageRoute(page:  ChatPage(
+          roomId: args['roomId'],
+          friendName: args['friendName'],
+          friendImage: args['friendImage'],
+          friendId: args['friendId'],
+        ));
       case RoutesName.camera:
         return CustomPageRoute(page: const CameraPage());
       case RoutesName.settings:

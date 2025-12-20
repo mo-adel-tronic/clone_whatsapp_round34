@@ -1,3 +1,4 @@
+import 'package:clone_whatsapp_round34/src/core/routes/routes.dart';
 import 'package:clone_whatsapp_round34/src/core/theme/app_color.dart';
 import 'package:clone_whatsapp_round34/src/features/home/presentation/widgets/chats_list.dart';
 import 'package:clone_whatsapp_round34/src/features/home/presentation/widgets/group_list.dart';
@@ -22,6 +23,16 @@ class _HomePageState extends State<HomePage> {
       initialIndex: 1,
       length: 4,
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: const Icon(Icons.message, color: Colors.white),
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              RoutesName.contacts,
+            );
+          },
+        ),
         appBar: AppBar(
           title: !isSearching
               ? const Text("WhatsApp")

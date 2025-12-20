@@ -22,10 +22,26 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "app_name": MessageLookupByLibrary.simpleMessage("استنساخ واتساب"),
     "btn_loading": MessageLookupByLibrary.simpleMessage("جارٍ المعالجة..."),
     "btn_next": MessageLookupByLibrary.simpleMessage("التالي"),
     "error_auto_verify": MessageLookupByLibrary.simpleMessage(
       "لم نتمكن من التحقق تلقائيًا من رقم هاتفك. يرجى إدخاله يدويًا.",
+    ),
+    "error_country_code": MessageLookupByLibrary.simpleMessage(
+      "رمز الدولة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
+    ),
+    "error_otp_empty": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال رمز التحقق.",
+    ),
+    "error_otp_send_failed": MessageLookupByLibrary.simpleMessage(
+      "فشل في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.",
+    ),
+    "error_phone_empty": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال رقم الهاتف.",
+    ),
+    "error_phone_number": MessageLookupByLibrary.simpleMessage(
+      "رقم الهاتف غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
     ),
     "error_unknown": MessageLookupByLibrary.simpleMessage(
       "حدث خطأ غير معروف. يرجى المحاولة مرة أخرى.",
@@ -61,12 +77,31 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "login_field_hint": MessageLookupByLibrary.simpleMessage("رقم الهاتف"),
     "login_subtitle": MessageLookupByLibrary.simpleMessage(
-      "يرجى إدخال رقم هاتفك لتسجيل الدخول إلى WhatsApp",
+      "يرجى تأكيد رمز دولتك وإدخال رقم هاتفك",
     ),
     "login_subtitle_link": MessageLookupByLibrary.simpleMessage(
       "ما هو رقم هاتفي؟",
     ),
     "login_title": MessageLookupByLibrary.simpleMessage("أدخل رقم هاتفك"),
+    "otp_confirm_text": MessageLookupByLibrary.simpleMessage(
+      "يرجى تأكيد رمز OTP الخاص بك",
+    ),
+    "otp_page_resend_btn": MessageLookupByLibrary.simpleMessage(
+      "إعادة إرسال الرمز",
+    ),
+    "otp_page_resend_msg": MessageLookupByLibrary.simpleMessage(
+      "تم إعادة إرسال رمز التحقق.",
+    ),
+    "otp_page_subtitle": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال رمز التحقق المكون من 6 أرقام المرسل إلى رقم هاتفك.",
+    ),
+    "otp_page_title": MessageLookupByLibrary.simpleMessage("أدخل رمز التحقق"),
+    "policy_privacy": MessageLookupByLibrary.simpleMessage("سياسة الخصوصية. "),
+    "policy_read": MessageLookupByLibrary.simpleMessage("اقرأ "),
+    "policy_tap": MessageLookupByLibrary.simpleMessage(
+      "اضغط \"الموافقة والمتابعة\" للموافقة على ",
+    ),
+    "policy_terms": MessageLookupByLibrary.simpleMessage("شروط الخدمة."),
     "search_hint": MessageLookupByLibrary.simpleMessage("ابدأ الكتابة للبحث"),
     "search_label": MessageLookupByLibrary.simpleMessage("بحث"),
     "welcome_btn": MessageLookupByLibrary.simpleMessage("الموافقة والمتابعة"),

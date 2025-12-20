@@ -1,35 +1,19 @@
-abstract class ChatState {
-  const ChatState();
-}
+import 'package:clone_whatsapp_round34/src/features/chat/data/models/message_model.dart';
+
+abstract class ChatState {}
+
+class ChatInitial extends ChatState {}
+
+class ChatLoading extends ChatState {}
 
 class ChatLoadedState extends ChatState {
-  final List<Map<String, dynamic>> messages;
-  final bool isTyping;
-  final String currentText;
+  final List<MessageModel> messages;
   final bool isRecording;
-  final String? recordingPath;
 
-  const ChatLoadedState({
-    required this.messages,
-    this.isTyping = false,
-    this.currentText = "",
-    this.isRecording = false,
-    this.recordingPath,
-  });
+  ChatLoadedState({this.messages = const [], this.isRecording = false});
+}
 
-  ChatLoadedState copyWith({
-    List<Map<String, dynamic>>? messages,
-    bool? isTyping,
-    String? currentText,
-    bool? isRecording,
-    String? recordingPath,
-  }) {
-    return ChatLoadedState(
-      messages: messages ?? this.messages,
-      isTyping: isTyping ?? this.isTyping,
-      currentText: currentText ?? this.currentText,
-      isRecording: isRecording ?? this.isRecording,
-      recordingPath: recordingPath ?? this.recordingPath,
-    );
-  }
+class ChatError extends ChatState {
+  final String message;
+  ChatError(this.message);
 }

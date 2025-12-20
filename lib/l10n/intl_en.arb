@@ -1,24 +1,37 @@
 {
+    "@@locale": "en",
+    "app_name": "WhatsApp Clone",
+
     "welcome_title": "Welcome to Instant WhatsApp",
     "welcome_btn": "Agree and Continue",
+    "policy_read": "Read our ",
+    "policy_privacy": "Privacy Policy. ",
+    "policy_tap": "Tap \"Agree and continue\" to accept the ",
+    "policy_terms": "Terms of Services.",
 
     "login_title": "Enter your phone number",
-    "login_subtitle": "WhatsApp will need to verify your number",
+    "login_subtitle": "Please confirm your country code and enter your phone number",
     "login_subtitle_link": "What's my number?",
     "login_field_hint": "Phone number",
     "login_charges_info": "Carrier charges may apply",
 
-    "linked_title":"Linked page",
-    "linked_desc1":"You can link other devices to this account.",
-    "linked_desc2":"Learn more",
-    "linked_btn":"Link a device",
-    "linked_status":"DEVICE STATUS",
-    "linked_status_text":"Tap a device to log out.",
-    "linked_device_name":"Windows",
-    "linked_device_active":"Last active today at 2:28 pm",
-    "linked_encryption1":"Your personal messages are ",
-    "linked_encryption2":"end-to-end encrypted",
-    "linked_encryption3":"\n on all your devices.",
+    "otp_page_title": "Enter OTP",
+    "otp_page_subtitle": "Please enter the 6-digit verification code sent to your phone number.",
+    "otp_page_resend_msg": "OTP has been resent.",
+    "otp_page_resend_btn": "Resend code",
+    "otp_confirm_text": "Please confirm your OTP code",
+
+    "linked_title": "Linked page",
+    "linked_desc1": "You can link other devices to this account.",
+    "linked_desc2": "Learn more",
+    "linked_btn": "Link a device",
+    "linked_status": "DEVICE STATUS",
+    "linked_status_text": "Tap a device to log out.",
+    "linked_device_name": "Windows",
+    "linked_device_active": "Last active today at 2:28 pm",
+    "linked_encryption1": "Your personal messages are ",
+    "linked_encryption2": "end-to-end encrypted",
+    "linked_encryption3": "\n on all your devices.",
 
     "btn_next": "Next",
     "btn_loading": "Processing...",
@@ -27,5 +40,10 @@
 
     "error_auto_verify": "We couldn't automatically verify your phone number. Please enter it manually.",
     "error_verify_failed": "Verification failed. Please try again.",
-    "error_unknown": "An unknown error occurred. Please try again."
+    "error_unknown": "An unknown error occurred. Please try again.",
+    "error_country_code": "Invalid country code. Please check and try again.",
+    "error_phone_number": "Invalid phone number. Please check and try again.",
+    "error_phone_empty": "Please enter your phone number.",
+    "error_otp_send_failed": "Failed to send OTP. Please try again.",
+    "error_otp_empty": "Please enter the OTP code."
 }

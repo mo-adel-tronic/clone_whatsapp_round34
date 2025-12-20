@@ -35,7 +35,7 @@ class DeviceSection extends StatelessWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: primary.withOpacity(0.12),
+                color: primary.withValues(alpha: .12),
                 shape: BoxShape.circle,
               ),
               child: Center(

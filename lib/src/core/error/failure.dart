@@ -54,3 +54,11 @@ class RouteFailure extends Failure {
 class VerificationFailure extends Failure {
   VerificationFailure([super.message]);
 }
+
+class StorageFailure extends Failure {
+  StorageFailure([super.message]);
+}
+
+class DatabaseFailure extends Failure {
+  DatabaseFailure([super.message]);
+}
